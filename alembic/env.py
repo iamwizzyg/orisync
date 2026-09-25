@@ -4,9 +4,8 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.config import settings
-from app.db.base import Base
+from app.db.base_all import Base  # noqa: F401 — imports all models
 
-import app.db.base  # noqa: F401 — ensures all models are imported
 
 config = context.config
 
