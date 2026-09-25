@@ -3,7 +3,6 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, field_validator
 
-
 VALID_EVENT_TYPES = {"ORDERED", "SHIPPED", "DELAYED", "RECEIVED", "ANOMALY"}
 VALID_STATUSES = {"PENDING", "PROCESSING", "PROCESSED", "FAILED"}
 

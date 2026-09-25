@@ -10,7 +10,6 @@ from app.db.base_all import *  # noqa: F401, F403
 from app.db.session import get_db
 from app.main import app
 from app.models.user import User
-from app.models.supplier import Supplier
 
 TEST_DATABASE_URL = settings.database_url.replace(
     "/orisync_db", "/orisync_test"

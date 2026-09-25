@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Lint, Test, Build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: orisync_user
+          POSTGRES_PASSWORD: orisync_password
+          POSTGRES_DB: orisync_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_ENV: test
+      SECRET_KEY: ci-test-secret-key-minimum-32-characters-long
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      DATABASE_URL: postgresql://orisync_user:orisync_password@localhost:5432/orisync_db
+      WEBHOOK_TIMEOUT_SECONDS: 10
+      WEBHOOK_MAX_RETRIES: 3
+      WEBHOOK_RETRY_DELAY_SECONDS: 60
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint with ruff
+        run: |
+          ruff check app/ tests/
+
+      - name: Create test database
+        run: |
+          PGPASSWORD=orisync_password psql \
+            -h localhost \
+            -U orisync_user \
+            -d orisync_db \
+            -c "CREATE DATABASE orisync_test;"
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ \
+            --cov=app \
+            --cov-report=term-missing \
+            --cov-fail-under=75 \
+            -v
+
+      - name: Build Docker image
+        run: |
+          docker build -t orisync:ci .

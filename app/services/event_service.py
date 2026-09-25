@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 
 from fastapi import BackgroundTasks
 from sqlalchemy.orm import Session
