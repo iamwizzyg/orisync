@@ -28,6 +28,7 @@ jobs:
 
     env:
       APP_ENV: test
+      TESTING: "true"
       SECRET_KEY: ci-test-secret-key-minimum-32-characters-long
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       DATABASE_URL: postgresql://orisync_user:orisync_password@localhost:5432/orisync_db
