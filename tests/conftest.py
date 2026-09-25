@@ -46,18 +46,15 @@ def setup_test_database():
 
 @pytest.fixture()
 def db():
-    """
-    Each test gets a real session that commits.
-    We clean up after each test by deleting all rows.
-    This avoids transaction isolation issues with fixtures.
-    """
     session = TestingSessionLocal()
     yield session
     session.close()
-    # Clean all tables after each test
+    # Clean all tables respecting FK constraints
     with test_engine.begin() as conn:
+        conn.execute(text("SET session_replication_role = replica"))
         for table in reversed(Base.metadata.sorted_tables):
             conn.execute(table.delete())
+        conn.execute(text("SET session_replication_role = DEFAULT"))
 
 
 @pytest.fixture()
