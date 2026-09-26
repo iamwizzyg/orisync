@@ -7,7 +7,7 @@ from app.config import settings
 # pool_pre_ping=True means SQLAlchemy tests the connection
 # before using it, automatically reconnecting if it dropped.
 engine = create_engine(
-    settings.database_url,
+    settings.sqlalchemy_database_url,
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,

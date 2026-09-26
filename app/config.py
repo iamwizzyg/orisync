@@ -2,12 +2,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """
-    Application settings loaded from environment variables.
-    All values come from the .env file in development.
-    In production, set these as real environment variables.
-    """
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -31,6 +25,17 @@ class Settings(BaseSettings):
     def is_production(self) -> bool:
         return self.app_env.lower() == "production"
 
+    @property
+    def sqlalchemy_database_url(self) -> str:
+        """
+        Railway injects DATABASE_URL as postgres:// (legacy format).
+        SQLAlchemy requires postgresql+psycopg2://.
+        This property normalizes both cases.
+        """
+        url = self.database_url
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return url
 
-# Single instance imported everywhere else in the app
+
 settings = Settings()
